@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "packserver"
+version = "1.0.0"
+dependencies = [
+    "click",
+    "websocket-client"
+]
+requires-python = ">=3.10"
+authors = [
+    {name = "Jone"}
+]
+maintainers = [
+    {name = "Jone"}
+]
+description = "A simple Minecraft Resource Pack server"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICEN[CS]E.*"]
+keywords = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python"
+]
+
+[project.scripts]
+packserver = "packserver:main"
