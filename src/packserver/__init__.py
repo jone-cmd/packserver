@@ -5,8 +5,9 @@ import contextlib
 import hashlib
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-import websocket
+
 import click
+import websocket
 
 MC_SERVER_MANAGEMENT_ENDPOINT: str = ""
 MC_SERVER_MANAGEMENT_TOKEN: str = ""
@@ -20,6 +21,7 @@ four04_response: bytes = b""
 four04_response_size: int = 0
 four04_response_size_str: str = ""
 four04_response_content_type: str = ""
+
 
 def player_online(username: str, uuid: str) -> bool:
     """
@@ -39,7 +41,6 @@ def player_online(username: str, uuid: str) -> bool:
         result = json.loads(connection.recv())
     result = result.get("result")
     return result and len([player for player in result if player["name"] == username and player["id"] == uuid]) > 0
-
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
@@ -87,7 +88,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         if (self.path == pack_path and self.headers.get("X-Minecraft-Version-ID") and self.headers.get(
                 "X-Minecraft-Pack-Format") and self.headers.get("X-Minecraft-Pack-Version") and self.headers.get(
             "X-Minecraft-Pack-Version-ID") and self.headers.get("User-Agent", "").startswith(
-            "Minecraft Java/") and self.headers.get("X-Minecraft-Username") and self.headers.get("X-Minecraft-UUID")):
+                "Minecraft Java/") and self.headers.get("X-Minecraft-Username") and self.headers.get("X-Minecraft-UUID")):
             username = self.headers.get("X-Minecraft-Username")
             uuid = self.headers.get("X-Minecraft-UUID")
             if player_online(username, uuid):
@@ -109,8 +110,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
 @click.option("--pack-file", "-P", type=click.Path(exists=True), default="resourcepack.zip")
 def main(server_management_endpoint: str, token: str, host: str, port: int, pack_file: str):
     """A simple MC resource pack server"""
-    global MC_SERVER_MANAGEMENT_ENDPOINT, MC_SERVER_MANAGEMENT_TOKEN,\
-        pack, pack_hash, pack_size, pack_size_str, pack_content_type, pack_path,\
+    global MC_SERVER_MANAGEMENT_ENDPOINT, MC_SERVER_MANAGEMENT_TOKEN, \
+        pack, pack_hash, pack_size, pack_size_str, pack_content_type, pack_path, \
         four04_response, four04_response_size, four04_response_size_str, four04_response_content_type
     MC_SERVER_MANAGEMENT_ENDPOINT = server_management_endpoint
     MC_SERVER_MANAGEMENT_TOKEN = token
@@ -121,6 +122,8 @@ def main(server_management_endpoint: str, token: str, host: str, port: int, pack
     pack_size_str = str(pack_size)
     pack_content_type = "application/zip"
     pack_path = f"/{pack_hash[:2]}/{pack_hash}.zip"
+    with open("packpath.txt", "w") as file:
+        file.write(pack_path)
     four04_response = b"404 - Not Found"
     four04_response_size = len(four04_response)
     four04_response_size_str = str(four04_response_size)
@@ -128,7 +131,8 @@ def main(server_management_endpoint: str, token: str, host: str, port: int, pack
     server_address = (host, port)
     httpd = HTTPServer(server_address, RequestHandler)
     try:
-        click.echo(f"Serving pack on http://{host}:{port}{pack_path} (Ctrl+C to stop)...")
+        click.echo(
+            f"Serving pack on http://{host}:{port}{pack_path} (Ctrl+C to stop)...")
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
