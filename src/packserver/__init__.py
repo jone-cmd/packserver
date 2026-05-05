@@ -147,12 +147,13 @@ class RequestHandler(SimpleHTTPRequestHandler):
 )
 @click.option("--debug", "-d", is_flag=True, default=False)
 def main(
-    server_management_endpoint: str, token: str, host: str, port: int, pack_file: str
+    server_management_endpoint: str, token: str, host: str, port: int, pack_file: str, debug: bool
 ):
     """A simple MC resource pack server"""
     global \
         MC_SERVER_MANAGEMENT_ENDPOINT, \
         MC_SERVER_MANAGEMENT_TOKEN, \
+        DEBUG, \
         pack, \
         pack_hash, \
         pack_size, \
@@ -165,6 +166,7 @@ def main(
         four04_response_content_type
     MC_SERVER_MANAGEMENT_ENDPOINT = server_management_endpoint
     MC_SERVER_MANAGEMENT_TOKEN = token
+    DEBUG = debug
     with open(pack_file, "rb") as file:
         pack = file.read()
     pack_hash = hashlib.sha256(pack).hexdigest()
