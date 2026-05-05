@@ -25,6 +25,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       pyproject-nix,
       uv2nix,
@@ -64,6 +65,8 @@
 
     in
     {
+      nixosModules.default = import ./nix/modules/packserver.nix self;
+
       devShells = forAllSystems (
         system:
         let
