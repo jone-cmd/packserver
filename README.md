@@ -20,7 +20,7 @@ Example:
         {
           services.packserver = {
             enable = true;
-            serverManagementEndpoint = "wss://server.example.invalid/ws";
+            serverManagementEndpoint = "wss://server.example.invalid";
             token = "replace-me";
             packFile = "/var/lib/packserver/resourcepack.zip";
             host = "0.0.0.0";
