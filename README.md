@@ -22,6 +22,10 @@ Example:
             enable = true;
             serverManagementEndpoint = "wss://server.example.invalid";
             token = "replace-me";
+            user = "packserver";
+            group = "packserver";
+            dir = "/var/lib/packserver";
+            createUser = true;
             packFile = "/var/lib/packserver/resourcepack.zip";
             host = "0.0.0.0";
             port = 8000;

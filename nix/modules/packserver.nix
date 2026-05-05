@@ -59,10 +59,44 @@ in
       default = false;
       description = "Whether to open the selected port in the firewall.";
     };
+
+    user = mkOption {
+      type = types.str;
+      default = "packserver";
+      description = "User account under which PackServer runs.";
+    };
+
+    group = mkOption {
+      type = types.str;
+      default = "packserver";
+      description = "Group account under which PackServer runs.";
+    };
+
+    dir = mkOption {
+      type = types.str;
+      default = "/var/lib/packserver";
+      description = "Working directory for PackServer.";
+    };
+
+    createUser = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to create the configured user and group automatically.";
+    };
   };
 
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.port ];
+
+    users.groups = mkIf cfg.createUser { ${cfg.group} = { }; };
+    users.users = mkIf cfg.createUser {
+      ${cfg.user} = {
+        isSystemUser = true;
+        group = cfg.group;
+        home = cfg.dir;
+        createHome = true;
+      };
+    };
 
     systemd.services.packserver = {
       description = "PackServer";
@@ -71,9 +105,10 @@ in
       wants = [ "network-online.target" ];
       serviceConfig = {
         Type = "simple";
-        DynamicUser = true;
-        StateDirectory = "packserver";
-        WorkingDirectory = "/var/lib/packserver";
+        DynamicUser = false;
+        User = cfg.user;
+        Group = cfg.group;
+        WorkingDirectory = cfg.dir;
         Restart = "on-failure";
         RestartSec = "5s";
       };
