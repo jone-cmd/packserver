@@ -83,6 +83,12 @@ in
       default = true;
       description = "Whether to create the configured user and group automatically.";
     };
+
+    debug = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether to enable debug logging for PackServer.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -119,6 +125,7 @@ in
           --host ${lib.escapeShellArg cfg.host} \
           --port ${toString cfg.port} \
           --pack-file ${lib.escapeShellArg cfg.packFile}
+          ${if cfg.debug then "--debug" else ""}
       '';
     };
   };

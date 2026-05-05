@@ -12,6 +12,7 @@ import websocket
 
 MC_SERVER_MANAGEMENT_ENDPOINT: str = ""
 MC_SERVER_MANAGEMENT_TOKEN: str = ""
+DEBUG: bool = False
 pack: bytes = b""
 pack_hash: str = ""
 pack_size: int = 0
@@ -62,6 +63,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
     server_version = "PackServer"
 
+    def __init__(self, *args, **kwargs):
+        self.debug = DEBUG
+        super().__init__(*args, **kwargs)
+
     def send_common_headers(self):
         """
         Send the common headers.
@@ -98,6 +103,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
         """
         Serve pack
         """
+        if self.debug:
+            print(f"Received request: {self.path}")
+            print(f"Headers: {self.headers}")
         if (
             self.path == pack_path
             and self.headers.get("X-Minecraft-Version-ID")
@@ -112,6 +120,14 @@ class RequestHandler(SimpleHTTPRequestHandler):
             uuid = self.headers.get("X-Minecraft-UUID")
             if player_online(username, uuid):
                 self.send_200(head_only=head_only)
+                if self.debug:
+                    print(f"Served pack to player {username} ({uuid})")
+            elif self.debug:
+                print(f"Player {username} ({uuid}) is not online, sending 404 response")
+        elif self.debug:
+            print(
+                "Request did not match criteria for serving pack, sending 404 response"
+            )
         self.send_404(head_only=head_only)
 
     def do_HEAD(self):
@@ -129,6 +145,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 @click.option(
     "--pack-file", "-P", type=click.Path(exists=True), default="resourcepack.zip"
 )
+@click.option("--debug", "-d", is_flag=True, default=False)
 def main(
     server_management_endpoint: str, token: str, host: str, port: int, pack_file: str
 ):
